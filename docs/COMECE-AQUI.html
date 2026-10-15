@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto J/L Cutter — instalação e uso</title>
+<style>
+	:root{
+		--fundo:#070a09; --card:#0e1413; --card2:#050807;
+		--borda:#1b2422; --borda2:#26322e;
+		--verde:#2fe08a; --verde-fraco:#6f9d85; --texto:#e8efec; --texto-medio:#9aa8a3;
+		--alerta:#f0c060; --perigo:#ff6b6b;
+		--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+		--mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+	}
+	*{box-sizing:border-box}
+	body{margin:0; background:var(--fundo); color:var(--texto); font-family:var(--sans); font-size:15px; line-height:1.7; padding:0 22px 90px}
+	.wrap{max-width:800px; margin:0 auto}
+	header{padding:52px 0 26px; border-bottom:1px solid var(--borda2); margin-bottom:12px}
+	.marca-linha{display:flex; align-items:center; gap:14px}
+	.marca{width:46px; height:46px; border-radius:12px; flex-shrink:0; background:linear-gradient(145deg,var(--verde),#1aa868); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:#06120c; box-shadow:0 3px 16px rgba(47,224,138,.25)}
+	h1{font-size:27px; margin:0; letter-spacing:-.02em; font-weight:650}
+	.subtitulo{color:var(--verde-fraco); margin:5px 0 0; font-size:14px}
+	.chip{display:inline-block; font-family:var(--mono); font-size:11px; color:var(--verde); background:rgba(47,224,138,.12); padding:2px 8px; border-radius:5px; margin-left:8px; vertical-align:middle}
+	h2{font-size:12px; color:var(--verde); letter-spacing:.13em; text-transform:uppercase; margin:44px 0 14px; font-weight:650}
+	h3{font-size:16px; margin:28px 0 8px; font-weight:600}
+	p{margin:12px 0; color:#dbe6e1}
+	code{background:var(--card2); border:1px solid var(--borda); border-radius:5px; padding:1px 6px; color:var(--verde); font-family:var(--mono); font-size:13px}
+	pre{background:var(--card2); border:1px solid var(--borda); border-left:2px solid var(--verde); border-radius:8px; padding:14px 16px; overflow-x:auto; font-size:13px; color:var(--verde); font-family:var(--mono); line-height:1.6}
+	pre code{background:none;border:none;padding:0}
+	.passo{background:var(--card); border:1px solid var(--borda); border-radius:11px; padding:18px 20px; margin:12px 0}
+	.passo .n{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(47,224,138,.13); color:var(--verde); font-weight:700; font-size:13px; margin-right:10px; border:1px solid rgba(47,224,138,.3); vertical-align:middle}
+	.passo strong{font-size:15.5px}
+	.passo p{margin:9px 0 0}
+	a{color:var(--verde); text-decoration:none; border-bottom:1px solid rgba(47,224,138,.35); word-break:break-all}
+	a:hover{border-bottom-color:var(--verde)}
+	.nota{border-radius:9px; padding:14px 16px; margin:16px 0; font-size:14px; border:1px solid transparent}
+	.nota.info{background:rgba(47,224,138,.06); border-color:rgba(47,224,138,.24)}
+	.nota.atencao{background:rgba(240,192,96,.07); border-color:rgba(240,192,96,.3); color:#f2e2ba}
+	.nota.perigo{background:rgba(255,107,107,.07); border-color:rgba(255,107,107,.3); color:#ffd2d2}
+	.nota b{color:#fff}
+	.abas{display:flex; gap:8px; margin:20px 0 0}
+	.aba{flex:1; text-align:center; padding:12px; cursor:pointer; border:1px solid var(--borda); border-bottom:none; border-radius:9px 9px 0 0; background:var(--card2); color:var(--texto-medio); font-weight:600; font-size:14px; user-select:none; transition:all .15s}
+	.aba:hover{color:var(--texto)}
+	.aba.ativa{background:var(--card); color:var(--verde); border-color:var(--borda2); box-shadow:0 -3px 14px rgba(47,224,138,.1)}
+	.painel{display:none; background:var(--card); border:1px solid var(--borda2); border-radius:0 0 9px 9px; padding:22px}
+	.painel.ativa{display:block}
+	table{width:100%; border-collapse:collapse; margin:16px 0; font-size:14px}
+	th,td{border:1px solid var(--borda); padding:11px 13px; text-align:left; vertical-align:top}
+	th{background:var(--card2); color:var(--verde); font-weight:650; font-size:12.5px; text-transform:uppercase; letter-spacing:.06em}
+	td strong{color:#fff}
+	ul,ol{padding-left:22px; color:#dbe6e1}
+	li{margin:8px 0}
+	.diagrama{font-family:var(--mono); font-size:12.5px; line-height:1.6; white-space:pre; overflow-x:auto; background:var(--card2); border:1px solid var(--borda); border-radius:9px; padding:14px 16px; color:#cfe9dc; margin:12px 0}
+	.diagrama b{color:var(--verde); font-weight:600}
+	footer{margin-top:56px; padding-top:22px; border-top:1px solid var(--borda); color:var(--verde-fraco); font-size:13px}
+	@media (max-width:640px){ .abas{flex-direction:column} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+	<div class="marca-linha">
+		<div class="marca">J/L</div>
+		<div>
+			<h1>Auto J/L Cutter<span class="chip">v0.2</span></h1>
+			<p class="subtitulo">Extensão para Adobe Premiere Pro · ferramenta interna · versão de teste</p>
+		</div>
+	</div>
+</header>
+
+<p>Ela pega os cortes da sua fala (os jump cuts) e cria <strong>J-cuts e L-cuts</strong> em todos de uma vez. Os áudios se alternam entre duas faixas, as falas se misturam pelos frames que você escolher e a boca continua <strong>sincronizada</strong>. O que você faria clipe por clipe com a Rolling Edit, ela faz em um clique.</p>
+
+<div class="nota atencao">
+	<b>Isto é uma versão de teste.</b> Rode primeiro num projeto de teste, não num job com prazo. E reporte o que achar estranho, mesmo coisa pequena: tem um botão que copia o diagnóstico prontinho para isso.
+</div>
+
+<h2>O que é J-cut e L-cut</h2>
+
+<div class="diagrama"><b>J-cut</b>: você OUVE o próximo clipe antes de VÊ-LO
+VÍDEO  [====== clipe 1 ======][===== clipe 2 =====]   ← o corte do vídeo fica no lugar
+A1     [====== fala 1 =======]
+A2                       <b>[####</b>===== fala 2 =====]   ← a fala 2 entra por baixo da 1
+
+<b>L-cut</b>: o clipe anterior continua FALANDO sobre a imagem nova
+VÍDEO  [===== clipe 1 =====][====== clipe 2 ======]   ← a imagem nova entra antes
+A1     [====== fala 1 ===<b>####]</b>                       ← a fala 1 termina por cima
+A2                      [====== fala 2 ======]</div>
+
+<p>Como cada áudio continua preso ao próprio vídeo, <strong>a boca nunca sai de sincronia</strong>. O preço de colocar uma fala por cima da outra é que <strong>a sequência fica mais curta</strong>: N frames por corte.</p>
+
+<h2>Requisitos</h2>
+<ul>
+	<li><strong>Premiere Pro 2025 ou 2026</strong> (testado no 26.5)</li>
+	<li><strong>macOS ou Windows</strong>: tem instalador para cada um</li>
+	<li><strong>Qualquer idioma de interface.</strong> A extensão acha sozinha o nome do crossfade no idioma do seu Premiere. <strong>O painel é em inglês</strong>; este guia traduz todos os termos.</li>
+	<li>Feche o Premiere <strong>completamente</strong> antes de instalar</li>
+</ul>
+
+<h2>Instalação</h2>
+
+<div class="abas">
+	<div class="aba ativa" data-alvo="mac">macOS</div>
+	<div class="aba" data-alvo="win">Windows</div>
+</div>
+
+<div class="painel ativa" id="mac">
+	<div class="passo">
+		<span class="n">1</span><strong>Baixe a última versão</strong>
+		<p>Abra <a href="https://github.com/Victoroak64/auto-jl-cutter-premiere/releases/latest">https://github.com/Victoroak64/auto-jl-cutter-premiere/releases/latest</a> e clique no arquivo <code>.zip</code> da seção <b>Assets</b>. O nome começa com <code>Auto-JL-Cutter-</code>.</p>
+		<div class="nota" style="margin-bottom:0"><b>Guarde esse link.</b> Ele sempre aponta para a versão mais nova. Quando sair uma atualização, é só baixar de novo e instalar por cima.</div>
+	</div>
+	<div class="passo">
+		<span class="n">2</span><strong>Extraia o .zip</strong>
+		<p>Dois cliques no arquivo baixado. Vai criar uma pasta com o mesmo nome. <strong>Não rode nada de dentro do zip</strong>, só da pasta extraída.</p>
+	</div>
+	<div class="passo">
+		<span class="n">3</span><strong>Rode o instalador pelo Terminal</strong>
+		<p>Abra o <strong>Terminal</strong> (⌘+Espaço, digite "Terminal", Enter). Digite <code>bash </code>, com um espaço depois, sem apertar Enter ainda. Depois <strong>arraste</strong> o <code>INSTALL-mac.command</code> da janela do Finder para dentro do Terminal (ele preenche o caminho sozinho). Aperte Enter.</p>
+		<div class="nota atencao" style="margin-bottom:0"><b>Por que não dois cliques?</b> O macOS bloqueia scripts sem assinatura abertos pelo Finder, e as versões recentes nem oferecem "Abrir mesmo assim". Rodar pelo Terminal é a forma normal de rodar um script baixado e nunca mostra esse aviso.</div>
+	</div>
+	<div class="passo">
+		<span class="n">4</span><strong>Confira o resultado</strong>
+		<p>Se terminar com <code>INSTALLED SUCCESSFULLY</code>, pode fechar. Se aparecer erro, tire um print e mande.</p>
+	</div>
+	<div class="passo">
+		<span class="n">5</span><strong>Abra o painel</strong>
+		<p>Abra o Premiere → <strong>Janela → Extensões → Auto J/L Cutter</strong>.</p>
+		<p style="color:var(--texto-medio); font-size:13.5px">Premiere em inglês? <strong>Window → Extensions</strong>. O nome do painel é sempre <strong>Auto J/L Cutter</strong>.</p>
+	</div>
+	<h3>Se o painel não aparecer no menu</h3>
+	<p>Abra o Terminal, cole isto e reabra o Premiere:</p>
+	<pre><code>for i in 9 10 11 12 13 14 15; do defaults write com.adobe.CSXS.$i PlayerDebugMode 1; done</code></pre>
+</div>
+
+<div class="painel" id="win">
+	<div class="passo">
+		<span class="n">1</span><strong>Baixe a última versão</strong>
+		<p>Abra <a href="https://github.com/Victoroak64/auto-jl-cutter-premiere/releases/latest">https://github.com/Victoroak64/auto-jl-cutter-premiere/releases/latest</a> e clique no arquivo <code>.zip</code> da seção <b>Assets</b>. O nome começa com <code>Auto-JL-Cutter-</code>.</p>
+		<div class="nota" style="margin-bottom:0"><b>Guarde esse link.</b> Ele sempre aponta para a versão mais nova. Quando sair uma atualização, é só baixar de novo e instalar por cima.</div>
+	</div>
+	<div class="passo">
+		<span class="n">2</span><strong>Extraia o .zip</strong>
+		<p>Botão direito no arquivo → <strong>Extrair Tudo</strong>. <strong>Não rode nada de dentro do zip</strong>: o Windows abre zip como se fosse pasta, mas o instalador não funciona assim.</p>
+	</div>
+	<div class="passo">
+		<span class="n">3</span><strong>Rode o instalador</strong>
+		<p>Na pasta extraída, dois cliques em <code>INSTALL-windows.bat</code>.</p>
+		<div class="nota atencao" style="margin-bottom:0"><b>Se o Defender avisar</b> ("O Windows protegeu o computador"), clique em <strong>Mais informações</strong> → <strong>Executar assim mesmo</strong>. Acontece com qualquer .bat sem assinatura digital.</div>
+	</div>
+	<div class="passo">
+		<span class="n">4</span><strong>Confira o resultado</strong>
+		<p>Abre uma janela preta. Se terminar com <code>INSTALLED SUCCESSFULLY</code>, pode fechar. Se aparecer erro, tire um print e mande.</p>
+	</div>
+	<div class="passo">
+		<span class="n">5</span><strong>Abra o painel</strong>
+		<p>Abra o Premiere → <strong>Janela → Extensões → Auto J/L Cutter</strong>.</p>
+	</div>
+	<h3>Se o painel não aparecer no menu</h3>
+	<p>Abra o <strong>Prompt de Comando</strong>, cole isto e reabra o Premiere:</p>
+	<pre><code>for %v in (9 10 11 12 13 14 15) do reg add "HKCU\Software\Adobe\CSXS.%v" /v PlayerDebugMode /t REG_SZ /d 1 /f</code></pre>
+</div>
+
+<h2>Como usar</h2>
+
+<div class="passo">
+	<span class="n">1</span><strong>Corte a fala primeiro</strong>
+	<p>O plugin trabalha <strong>em cima dos cortes</strong>. Deixe os jump cuts prontos (pausas tiradas) com vídeo em V1 e áudio na faixa de origem, normalmente A1, e a <strong>faixa alternada vazia</strong>, normalmente A2. Use no <strong>começo da edição</strong>, antes de B-roll, música e legendas.</p>
+</div>
+<div class="passo">
+	<span class="n">2</span><strong>Scope: onde aplicar</strong>
+	<p><strong>Whole timeline</strong> usa todos os cortes entre pedaços do <strong>mesmo arquivo</strong>. <strong>Selection</strong> usa só os clipes que você selecionou, mesmo que sejam de arquivos diferentes. O painel sempre mostra a sequência ativa e quantos clipes estão selecionados.</p>
+</div>
+<div class="passo">
+	<span class="n">3</span><strong>Tracks: as duas faixas</strong>
+	<p><strong>Source</strong> é onde o áudio está; <strong>Alternate</strong> é para onde vai um áudio sim, um não. O primeiro clipe fica sempre na origem. Faixas novas aparecem na lista sozinhas.</p>
+</div>
+<div class="passo">
+	<span class="n">4</span><strong>Mode e Overlap</strong>
+	<p>Escolha o modo (tabela abaixo) e quantos frames as falas vão se misturar. <strong>4 frames</strong> é um bom começo. Dá para usar milissegundos, convertidos com o fps real da sequência.</p>
+</div>
+<div class="passo">
+	<span class="n">5</span><strong>Analyze, depois Apply</strong>
+	<p><strong>Analyze</strong> mostra o que vai acontecer <strong>sem mexer em nada</strong>: quantos cortes, quantos clipes trocam de faixa e quanto a sequência vai encurtar, mais os avisos. <strong>Apply</strong> executa e confere cada operação, e o relatório final diz o que foi feito.</p>
+</div>
+
+<h2>Os controles, traduzidos</h2>
+<table>
+	<tr><th>No painel</th><th>O que faz</th></tr>
+	<tr><td><strong>Interleave</strong><br><span style="color:var(--texto-medio); font-size:12.5px">intercalar</span></td><td>Só alterna os áudios entre as duas faixas. Não mistura falas e não encurta nada.</td></tr>
+	<tr><td><strong>J-cut</strong></td><td>Em todos os cortes, a fala seguinte começa por baixo da anterior.</td></tr>
+	<tr><td><strong>L-cut</strong></td><td>Em todos os cortes, a fala anterior termina por cima da imagem nova.</td></tr>
+	<tr><td><strong>J + L</strong> e <strong>Rhythm</strong><br><span style="color:var(--texto-medio); font-size:12.5px">ritmo</span></td><td>Alterna J e L. <strong>Rhythm 1</strong> = J, L, J, L… · <strong>Rhythm 2</strong> = J, J, L, L… Se o ritmo for maior que o número de cortes, o Analyze avisa.</td></tr>
+	<tr><td><strong>Overlap</strong> + <strong>Unit</strong><br><span style="color:var(--texto-medio); font-size:12.5px">sobreposição</span></td><td>Quantos frames (ou milissegundos) as falas se misturam. A sequência encurta esse tanto por corte.</td></tr>
+	<tr><td><strong>Crossfade</strong></td><td>Um fade leve no início e no fim de cada áudio, para a passagem entre as falas ficar suave. 3 frames resolve na maioria dos casos.</td></tr>
+	<tr><td><strong>Backup sequence</strong></td><td>Duplica a sequência antes de mexer. Aparece no painel de projeto com data e hora no nome, e você continua na original.</td></tr>
+	<tr><td><strong>Undo</strong><br><span style="color:var(--texto-medio); font-size:12.5px">desfazer</span></td><td>Fica sempre à vista e acende quando há algo a desfazer <strong>na timeline aberta</strong>. Nesta versão funciona no <strong>Interleave</strong>; depois de J/L use <strong>Cmd+Z / Ctrl+Z</strong> ou o backup.</td></tr>
+</table>
+
+<h3>Avisos que podem aparecer</h3>
+<ul>
+	<li><strong>"No cuts found"</strong>: a timeline não tem cortes. Corte a fala primeiro.</li>
+	<li><strong>"A2 already has clips"</strong>: a faixa alternada já tem áudio no caminho. O botão vira <strong>Apply anyway</strong> e só aplica no segundo clique. Se o áudio da sua câmera usa duas faixas (A1 + A2), escolha outra faixa vazia como Alternate.</li>
+	<li><strong>"…will be shortened too"</strong>: há clipes em outras faixas atravessando os cortes. Eles encurtam junto, para nada sair de sincronia.</li>
+	<li><strong>"Cut skipped"</strong>: um pedaço é curto demais para perder N frames, então aquele corte fica como está.</li>
+</ul>
+
+<h2>Como reportar um problema</h2>
+<div class="nota info">
+	<p style="margin-top:0">Abra <b>Log</b> (no fim do painel) e clique em <b>Copy diagnostics</b>. Ele copia sua versão do Premiere, sistema, idioma, versão da extensão e o log inteiro. Cole isso junto de:</p>
+	<ul style="margin-bottom:0">
+		<li>o que você estava fazendo (modo, frames, scope)</li>
+		<li>um print da timeline com zoom no corte, se for algo visual</li>
+	</ul>
+</div>
+
+<h3>O que mais nos interessa</h3>
+<ul>
+	<li><strong>Boca fora de sincronia</strong> em qualquer clipe</li>
+	<li>Respiro ou silêncio aparecendo entre as falas onde deveria haver mistura</li>
+	<li>Espaços vazios entre clipes depois de aplicar</li>
+	<li>O painel dizendo "Done" sem ter mudado nada</li>
+	<li>Comportamento diferente no Windows ou com o Premiere em outro idioma</li>
+</ul>
+
+<h2>Limitações conhecidas</h2>
+<ul>
+	<li>O Undo só existe para o Interleave nesta versão. Para J/L, use Cmd+Z / Ctrl+Z ou ligue o Backup antes.</li>
+	<li>O Undo fica guardado no painel: fechar o painel ou o Premiere perde o Undo (o Cmd+Z do Premiere continua valendo).</li>
+	<li>J/L encurta a sequência de propósito. É o que faz as falas se misturarem com a boca em sincronia.</li>
+</ul>
+
+<footer>
+	Ferramenta interna, feita sob medida para o time. Escrita do zero; não compartilha código com plugins comerciais e não tem relação com eles nem com a Adobe.
+</footer>
+
+</div>
+<script>
+	document.querySelectorAll(".aba").forEach(function(aba){
+		aba.addEventListener("click", function(){
+			document.querySelectorAll(".aba").forEach(function(a){ a.classList.remove("ativa"); });
+			document.querySelectorAll(".painel").forEach(function(p){ p.classList.remove("ativa"); });
+			aba.classList.add("ativa");
+			document.getElementById(aba.dataset.alvo).classList.add("ativa");
+		});
+	});
+</script>
+</body>
+</html>

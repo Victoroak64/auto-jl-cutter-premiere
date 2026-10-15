@@ -1,0 +1,48 @@
+name: Bug report
+description: Something didn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The panel has a **Copy diagnostics** button inside the **Log** section
+        (bottom of the panel). It bundles your Premiere version, OS, language,
+        extension version and the full log. Please paste that below — it
+        answers most of the questions we'd otherwise have to ask.
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Output of the "Copy diagnostics" button
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What were you doing?
+      placeholder: |
+        e.g. Whole timeline, J + L mode, rhythm 2, 4 frames, crossfade on,
+        clicked Apply
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: severity
+    attributes:
+      label: Did any of these happen?
+      options:
+        - label: Lips went out of sync (audio and video don't match)
+        - label: Empty gaps were left between clips
+        - label: Audio landed on top of other audio on the alternate track
+        - label: The panel said "Done" but nothing changed
+        - label: Premiere froze or behaved strangely afterwards

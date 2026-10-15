@@ -1,0 +1,19 @@
+# build output
+dist/
+*.zip
+
+# CEP remote debugging (dev only, must not ship)
+.debug
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editors
+.vscode/
+.idea/
+*.swp
+
+# node (not used at runtime, but in case tooling is added)
+node_modules/

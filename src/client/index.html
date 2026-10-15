@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Auto J/L Cutter</title>
+<style>
+	:root{
+		--fundo:#070a09;
+		--card:#0e1413;
+		--card-fundo:#050807;
+		--borda:#1b2422;
+		--borda-clara:#26322e;
+		--verde:#2fe08a;
+		--verde-suave:#7ae8b4;
+		--verde-tenue:rgba(47,224,138,.13);
+		--texto:#e8efec;
+		--texto-medio:#9aa8a3;
+		--texto-fraco:#6b7873;
+		--perigo:#ff6b6b;
+		--alerta:#f0c060;
+		--sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter",system-ui,sans-serif;
+		--mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+		--raio:11px;
+	}
+	*{box-sizing:border-box}
+	body{font-family:var(--sans);background:var(--fundo);color:var(--texto);margin:0;font-size:12.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+	.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+	[hidden]{display:none !important}
+
+	/* header */
+	.cabecalho{position:relative;height:66px;overflow:hidden;border-bottom:1px solid var(--borda);background:#030504}
+	#chuva{position:absolute;inset:0;opacity:.62;width:100%;height:100%}
+	.cabecalho-conteudo{position:absolute;inset:0;display:flex;align-items:center;gap:11px;padding:0 14px;background:linear-gradient(90deg,#030504 26%,rgba(3,5,4,.72) 52%,rgba(3,5,4,.15) 78%,transparent)}
+	.marca{width:29px;height:29px;border-radius:8px;flex-shrink:0;background:linear-gradient(145deg,var(--verde),#1aa868);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#06120c;box-shadow:0 2px 10px rgba(47,224,138,.24)}
+	.titulo-linha{display:flex;align-items:baseline;gap:7px}
+	.cabecalho h1{font-size:13.5px;margin:0;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+	.versao{font-family:var(--mono);font-size:9.5px;color:var(--verde);background:var(--verde-tenue);padding:1px 5px;border-radius:4px}
+	.cabecalho p{font-size:10.5px;margin:0;color:var(--texto-fraco);white-space:nowrap}
+
+	.conteudo{padding:12px}
+	.seq{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--borda);border-radius:var(--raio);padding:8px 11px;margin-bottom:10px;font-size:12px}
+	.ponto{width:7px;height:7px;border-radius:50%;background:var(--texto-fraco);flex-shrink:0}
+	.seq.ativa .ponto{background:var(--verde);box-shadow:0 0 6px rgba(47,224,138,.6)}
+	.seq .nome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+	.seq .sel{color:var(--texto-fraco);font-size:11px;white-space:nowrap}
+
+	.card{background:var(--card);border:1px solid var(--borda);border-radius:var(--raio);padding:12px;margin-bottom:10px}
+	.card h2{font-size:11.5px;margin:0 0 9px;color:var(--texto-medio);font-weight:600}
+	.linha{display:flex;gap:8px;align-items:flex-end}
+	.linha > div{flex:1;min-width:0}
+	label.rot{display:block;color:var(--texto-fraco);font-size:11px;margin-bottom:4px}
+	select,input[type=number]{width:100%;background:var(--card-fundo);border:1px solid var(--borda-clara);color:var(--texto);border-radius:8px;padding:6px 8px;font-family:var(--mono);font-size:12px}
+	select:focus,input:focus{outline:none;border-color:var(--verde)}
+	.ajuda{color:var(--texto-fraco);font-size:11px;margin:8px 0 0}
+
+	/* segmented control */
+	.seg{display:flex;background:var(--card-fundo);border:1px solid var(--borda-clara);border-radius:9px;padding:2px;gap:2px}
+	.seg button{flex:1;background:transparent;border:0;color:var(--texto-medio);border-radius:7px;padding:6px 4px;font-family:var(--sans);font-size:11.5px;cursor:pointer;white-space:nowrap}
+	.seg button.on{background:var(--verde-tenue);color:var(--verde);font-weight:600}
+	.seg + .seg{margin-top:6px}
+
+	/* iOS switch */
+	.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
+	.sw + .sw{border-top:1px solid var(--borda);padding-top:9px;margin-top:5px}
+	.sw .t{font-size:12.5px}
+	.sw .d{display:block;color:var(--texto-fraco);font-size:11px}
+	.chave{position:relative;width:34px;height:20px;flex-shrink:0}
+	.chave input{opacity:0;width:0;height:0}
+	.chave span{position:absolute;inset:0;background:var(--borda-clara);border-radius:20px;transition:.18s;cursor:pointer}
+	.chave span:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:#cfd8d4;border-radius:50%;transition:.18s}
+	.chave input:checked + span{background:var(--verde)}
+	.chave input:checked + span:before{transform:translateX(14px);background:#04110a}
+	.mini{width:70px !important}
+
+	/* buttons */
+	.acoes{display:flex;gap:8px;margin-bottom:8px}
+	.btn{flex:1;border-radius:10px;padding:10px;font-family:var(--sans);font-size:12.5px;cursor:pointer;border:1px solid var(--borda-clara);background:transparent;color:var(--texto)}
+	.btn:hover:not(:disabled){border-color:var(--verde)}
+	.btn.primario{background:var(--verde);border-color:var(--verde);color:#04110a;font-weight:600;flex:1.6}
+	.btn.primario.atencao{background:var(--alerta);border-color:var(--alerta)}
+	.btn:disabled{opacity:.38;cursor:default}
+	.btn.desfazer{width:100%;flex:none;color:var(--perigo);border-color:rgba(255,107,107,.35)}
+	.dica-desfazer{color:var(--texto-fraco);font-size:10.5px;margin:4px 2px 10px;min-height:14px}
+
+	/* report */
+	.relatorio{border-radius:var(--raio);padding:11px 12px;margin-bottom:10px;border:1px solid var(--borda);background:var(--card)}
+	.relatorio.ok{border-color:rgba(47,224,138,.35)}
+	.relatorio.erro{border-color:rgba(255,107,107,.4)}
+	.relatorio.previa{border-style:dashed}
+	.relatorio h3{font-size:12.5px;margin:0 0 6px}
+	.relatorio.ok h3{color:var(--verde)} .relatorio.erro h3{color:var(--perigo)}
+	.grade{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:11.5px;color:var(--texto-medio)}
+	.grade b{font-family:var(--mono);color:var(--texto);font-weight:500;text-align:right}
+	.msgs{margin:8px 0 0;padding:0;list-style:none;font-size:11.5px}
+	.msgs li{padding:3px 0 3px 14px;position:relative}
+	.msgs li:before{content:"•";position:absolute;left:2px}
+	.msgs .aviso{color:var(--alerta)} .msgs .erro{color:var(--perigo)} .msgs .nota{color:var(--texto-fraco)}
+
+	details{margin-top:4px}
+	summary{color:var(--texto-fraco);font-size:11px;cursor:pointer}
+	#log{font-family:var(--mono);font-size:10.5px;white-space:pre-wrap;background:var(--card-fundo);border:1px solid var(--borda);border-radius:8px;padding:8px;max-height:200px;overflow:auto;color:var(--texto-medio);margin-top:6px}
+	.link{background:none;border:0;color:var(--verde);font-size:11px;cursor:pointer;padding:6px 0}
+</style>
+</head>
+<body>
+
+<div class="cabecalho">
+	<canvas id="chuva"></canvas>
+	<div class="cabecalho-conteudo">
+		<div class="marca">J/L</div>
+		<div>
+			<div class="titulo-linha"><h1>Auto J/L Cutter</h1><span class="versao" id="versao">v—</span></div>
+			<p>Interleave audio across two tracks, with J and L cuts</p>
+		</div>
+	</div>
+</div>
+
+<div class="conteudo">
+	<div class="seq" id="seq"><span class="ponto"></span><span class="nome" id="seq-nome">Open a sequence to get started.</span><span class="sel" id="seq-sel"></span></div>
+
+	<div class="card">
+		<h2>Scope</h2>
+		<div class="seg" id="scope">
+			<button data-v="timeline" class="on">Whole timeline</button>
+			<button data-v="selection">Selection</button>
+		</div>
+		<p class="ajuda" id="scope-ajuda">Every cut between clips of the same file on the source track.</p>
+	</div>
+
+	<div class="card">
+		<h2>Tracks</h2>
+		<div class="linha">
+			<div><label class="rot">Source</label><select id="src"></select></div>
+			<div><label class="rot">Alternate</label><select id="alt"></select></div>
+		</div>
+		<p class="ajuda">The first clip always stays on the source track.</p>
+	</div>
+
+	<div class="card">
+		<h2>Mode</h2>
+		<div class="seg" id="mode">
+			<button data-v="interleave">Interleave</button>
+			<button data-v="J" class="on">J-cut</button>
+			<button data-v="L">L-cut</button>
+			<button data-v="mixed">J + L</button>
+		</div>
+		<p class="ajuda" id="mode-ajuda"></p>
+
+		<div id="bloco-rhythm" hidden style="margin-top:10px">
+			<label class="rot">Rhythm — how many of each before switching</label>
+			<input type="number" id="rhythm" min="1" value="1" class="num" />
+		</div>
+
+		<div id="bloco-overlap" style="margin-top:10px">
+			<div class="linha">
+				<div><label class="rot">Overlap</label><input type="number" id="overlap" min="0" value="4" class="num" /></div>
+				<div><label class="rot">Unit</label>
+					<select id="unit"><option value="frames">Frames</option><option value="ms">Milliseconds</option></select></div>
+			</div>
+			<p class="ajuda">Each J/L cut moves the whole clip by this amount: speech overlaps, lips stay in sync, and the sequence gets shorter.</p>
+		</div>
+	</div>
+
+	<div class="card">
+		<h2>Options</h2>
+		<div class="sw">
+			<div><span class="t">Crossfade</span><span class="d">A light fade at the start and end of each audio clip</span></div>
+			<label class="chave"><input type="checkbox" id="crossfade" /><span></span></label>
+		</div>
+		<div id="bloco-fade" hidden class="linha" style="margin:4px 0 6px">
+			<div><label class="rot">Crossfade length (frames)</label><input type="number" id="fade" min="1" value="3" class="num mini" /></div>
+		</div>
+		<div class="sw">
+			<div><span class="t">Backup sequence</span><span class="d">Duplicate the sequence before changing it</span></div>
+			<label class="chave"><input type="checkbox" id="backup" /><span></span></label>
+		</div>
+	</div>
+
+	<div class="acoes">
+		<button class="btn" id="analisar">Analyze</button>
+		<button class="btn primario" id="aplicar">Apply J-cuts</button>
+	</div>
+	<button class="btn desfazer" id="desfazer" disabled>Undo</button>
+	<div class="dica-desfazer" id="dica-desfazer">Nothing to undo on this timeline.</div>
+
+	<div class="relatorio" id="relatorio" hidden></div>
+
+	<details>
+		<summary>Log</summary>
+		<div id="log"></div>
+		<button class="link" id="copiar">Copy diagnostics</button>
+	</details>
+</div>
+
+<script src="js/CSInterface.js"></script>
+<script src="js/matrix.js"></script>
+<script src="js/planner.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="5.0" ExtensionBundleId="com.victoroak.autojlcutter" ExtensionBundleVersion="0.2.0"
+ExtensionBundleName="Auto J/L Cutter (victoroak)"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ExtensionList>
+		<Extension Id="com.victoroak.autojlcutter.panel" Version="0.2.0" />
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+			<Host Name="PPRO" Version="25.0" />
+		</HostList>
+		<LocaleList>
+			<Locale Code="All" />
+		</LocaleList>
+		<RequiredRuntimeList>
+			<RequiredRuntime Name="CSXS" Version="6.0" />
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+	<DispatchInfoList>
+		<Extension Id="com.victoroak.autojlcutter.panel">
+			<DispatchInfo>
+				<Resources>
+					<MainPath>./client/index.html</MainPath>
+					<ScriptPath>./host/main.jsx</ScriptPath>
+					<CEFCommandLine>
+						<Parameter>--allow-file-access</Parameter>
+						<Parameter>--allow-file-access-from-files</Parameter>
+						<Parameter>--enable-nodejs</Parameter>
+						<Parameter>--mixed-context</Parameter>
+					</CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Panel</Type>
+					<Menu>Auto J/L Cutter</Menu>
+					<Geometry>
+						<Size>
+							<Height>760</Height>
+							<Width>380</Width>
+						</Size>
+					</Geometry>
+				</UI>
+			</DispatchInfo>
+		</Extension>
+	</DispatchInfoList>
+</ExtensionManifest>
