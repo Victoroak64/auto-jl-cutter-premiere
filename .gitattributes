@@ -1,0 +1,8 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Windows installer: cmd.exe needs CRLF (scripts/build.sh checks it)
+*.bat text eol=crlf
+# macOS installer and shell scripts: always LF
+*.command text eol=lf
+*.sh text eol=lf
